@@ -1,11 +1,10 @@
-import public
 from deap import creator, base, tools
 
 from . import operators
 from .utils import StorageInput
 
 
-def _initialize_toolbox(storage: StorageInput, *, indpb: float=0.05, tournsize: int=3):
+def initialize_toolbox(storage: StorageInput, *, indpb: float=0.05, tournsize: int=3):
     # The creator is a class factory that can build new classes at run-time.
     # It will be called with first the desired name of the new class,
     # second the base class it will inherit, and in addition any subsequent
@@ -27,18 +26,17 @@ def _initialize_toolbox(storage: StorageInput, *, indpb: float=0.05, tournsize: 
     toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 
     # parameters
-    toolbox.register("evaluate", operators.eval_individual)
-    toolbox.register("mate", operators.cx_individual)
+    toolbox.register("evaluate", operators.eval_individual, storage=storage)
+    toolbox.register("mate", operators.cx_individual, alpha=0.1, indpb=0.25)
     toolbox.register("mutate", operators.mut_individual, indpb=indpb)
     toolbox.register("select", tools.selTournament, tournsize=tournsize)
 
     return toolbox
 
 
-@public.add
 def calculate(storage_input: StorageInput):
 
-    toolbox = _initialize_toolbox(storage_input)
+    toolbox = initialize_toolbox(storage_input)
 
     # population
     pop = toolbox.population(n=300)

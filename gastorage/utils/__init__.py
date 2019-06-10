@@ -5,13 +5,10 @@ from typing import Tuple, Optional
 import numpy as np
 from pathlib import Path
 
-import public
+
+Box = namedtuple('Box', ('rotated', 'exist', 'x', 'y'))
 
 
-Box = namedtuple('Box', ('exist', 'rotated', 'x', 'y'))
-
-
-@public.add
 class StorageInput:
 
     MIN_SHAPE   = 50
@@ -30,11 +27,11 @@ class StorageInput:
 
     @property
     def height(self) -> int:
-        return self._storage_shape[0]
+        return self._storage_shape[1]
 
     @property
     def width(self) -> int:
-        return self._storage_shape[1]
+        return self._storage_shape[0]
 
     @property
     def boxes(self) -> np.ndarray:
@@ -61,8 +58,15 @@ class StorageInput:
         boxes = np.random.randint(StorageInput.MIN_BOX, StorageInput.MAX_BOX, size=(boxes, 2))
         return cls(storage_shape, boxes)
 
+    @staticmethod
+    def storage_generator():
+        while True:
+            shape = np.random.randint(StorageInput.MIN_SHAPE, StorageInput.MAX_SHAPE, size=(2,))
+            shape = tuple(shape[:2])
+            n = np.random.randint(StorageInput.MAX_N)
+            yield StorageInput.from_random(shape, n)
 
-@public.add
+
 class OpenStorage:
 
     def __init__(self, path: Path):

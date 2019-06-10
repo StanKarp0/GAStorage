@@ -13,11 +13,11 @@ setup(name='gastorage',
       author='stankarp0',
       author_email='stankarp0@gmail.com',
       packages=['gastorage'],
-      install_requires=['numpy', 'public', 'deap'],
+      install_requires=['numpy', 'pandas', 'deap'],
       zip_safe=False,
       test_suite='nose.collector',
       tests_require=[],
-      entry_points = {
+      entry_points={
         'console_scripts': ['gastorage=gastorage.command_line:main'],
       },
 )
