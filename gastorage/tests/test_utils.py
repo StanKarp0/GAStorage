@@ -19,7 +19,6 @@ class TestFileStorage(TestCase):
         for file_path in path.rglob("*"):
             with OpenStorage(file_path) as storage:
                 self.assertValidStorage(storage)
-                result = algorithm.calculate(storage)
 
     def test_from_random(self):
         """
@@ -38,6 +37,4 @@ class TestFileStorage(TestCase):
             self.assertValidStorage(storage)
             self.assertTupleEqual(shape, storage.storage_shape)
             self.assertTupleEqual(storage.boxes.shape, (n, 2))
-
-            result = algorithm.calculate(storage)
 

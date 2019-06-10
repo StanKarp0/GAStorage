@@ -1,10 +1,17 @@
+from collections import namedtuple
 from io import TextIOWrapper
 from typing import Tuple, Optional
 
 import numpy as np
 from pathlib import Path
 
+import public
 
+
+Box = namedtuple('Box', ('exist', 'rotated', 'x', 'y'))
+
+
+@public.add
 class StorageInput:
 
     MIN_SHAPE   = 50
@@ -21,17 +28,21 @@ class StorageInput:
     def storage_shape(self) -> Tuple[int, int]:
         return self._storage_shape
 
-    @storage_shape.setter
-    def storage_shape(self, obj):
-        raise PermissionError("Not allowed")
+    @property
+    def height(self) -> int:
+        return self._storage_shape[0]
+
+    @property
+    def width(self) -> int:
+        return self._storage_shape[1]
 
     @property
     def boxes(self) -> np.ndarray:
         return self._boxes
 
-    @boxes.setter
-    def boxes(self, obj):
-        raise PermissionError("Not allowed")
+    @property
+    def count(self) -> int:
+        return self._boxes.shape[0]
 
     def __str__(self):
         return f"Shape: {self._storage_shape}\nBoxes:\n{self._boxes}"
@@ -51,7 +62,7 @@ class StorageInput:
         return cls(storage_shape, boxes)
 
 
-
+@public.add
 class OpenStorage:
 
     def __init__(self, path: Path):
