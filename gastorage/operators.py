@@ -27,7 +27,7 @@ def no_overlaps_ratio(df: pd.DataFrame) -> float:
     return series.mean()
 
 
-def eval_individual(storage: StorageInput, individual):
+def eval_individual(individual, storage: StorageInput):
     inv_arr = np.array(individual)
     exist = inv_arr[:, 1] == 1
 
@@ -75,4 +75,4 @@ def mut_individual(individual, indpb):
     x = [int(v + 0.5) for v in x]
     y = [int(v + 0.5) for v in y]
     individual[:] = [Box(*args) for args in zip(rotate, exist, x, y)]
-    return individual
+    return individual,

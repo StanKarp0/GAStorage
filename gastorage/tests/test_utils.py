@@ -1,7 +1,7 @@
-import numpy as np
 from unittest import TestCase
 
-from gastorage import algorithm
+import numpy as np
+
 from gastorage.tests import tests_path
 from gastorage.utils import OpenStorage, StorageInput
 

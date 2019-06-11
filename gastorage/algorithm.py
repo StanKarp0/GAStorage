@@ -1,4 +1,4 @@
-from deap import creator, base, tools
+from deap import creator, base, tools, algorithms
 
 from . import operators
 from .utils import StorageInput
@@ -34,64 +34,15 @@ def initialize_toolbox(storage: StorageInput, *, indpb: float=0.05, tournsize: i
     return toolbox
 
 
-def calculate(storage_input: StorageInput):
+def calculate(storage_input: StorageInput, *, cxpb: float = 0.2, mutpb: float = 0.02, ngen: int = 100):
 
     toolbox = initialize_toolbox(storage_input)
 
     # population
-    pop = toolbox.population(n=300)
-    print(pop)
+    pop = toolbox.population(n=50)
 
-    # Evaluate the entire population
-    # fitnesses = list(map(toolbox.evaluate, pop))
-    # for ind, fit in zip(pop, fitnesses):
-    #     ind.fitness.values = fit
-    #
-    # # CXPB  is the probability with which two individuals
-    # #       are crossed
-    # #
-    # # MUTPB is the probability for mutating an individual
-    # CXPB, MUTPB = 0.5, 0.2
-    #
-    # # Extracting all the fitnesses of
-    # fits = [ind.fitness.values[0] for ind in pop]
-    #
-    # # Variable keeping track of the number of generations
-    # g = 0
-    #
-    # # Begin the evolution
-    # while max(fits) < 100 and g < 1000:
-    #     # A new generation
-    #     g = g + 1
-    #     print("-- Generation %i --" % g)
-    #
-    #     # Select the next generation individuals
-    #     offspring = toolbox.select(pop, len(pop))
-    #     # Clone the selected individuals
-    #     offspring = list(map(toolbox.clone, offspring))
-    #
-    #     # Apply crossover and mutation on the offspring
-    #     for child1, child2 in zip(offspring[::2], offspring[1::2]):
-    #         if random.random() < CXPB:
-    #             toolbox.mate(child1, child2)
-    #             del child1.fitness.values
-    #             del child2.fitness.values
-    #
-    #     for mutant in offspring:
-    #         if random.random() < MUTPB:
-    #             toolbox.mutate(mutant)
-    #             del mutant.fitness.values
-    #
-    #     # Evaluate the individuals with an invalid fitness
-    #     invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
-    #     fitnesses = map(toolbox.evaluate, invalid_ind)
-    #     for ind, fit in zip(invalid_ind, fitnesses):
-    #         ind.fitness.values = fit
-    #
-    #     pop[:] = offspring
-    #
-    #     # Gather all the fitnesses in one list and print the stats
-    #     fits = [ind.fitness.values[0] for ind in pop]
+    log = algorithms.eaSimple(pop, toolbox, cxpb, mutpb, ngen)
+
     #
     #     length = len(pop)
     #     mean = sum(fits) / length
@@ -102,8 +53,7 @@ def calculate(storage_input: StorageInput):
     #     print("  Max %s" % max(fits))
     #     print("  Avg %s" % mean)
     #     print("  Std %s" % std)
-    #
-    # print(storage_input)
+
 
     return (u'Wenn ist das Nunst\u00fcck git und Slotermeyer? Ja! ... '
             u'Beiherhund das Oder die Flipperwaldt gersput.')
