@@ -4,7 +4,8 @@ from . import operators
 from .utils import StorageInput
 
 
-def initialize_toolbox(storage: StorageInput, *, indpb: float=0.05, tournsize: int=3):
+def initialize_toolbox(storage: StorageInput, *, indpb_mutate: float = 0.05, tournsize: int = 3, eta: float = 4,
+                       alpha: float = 0.1, indpb_mate=0.25):
     # The creator is a class factory that can build new classes at run-time.
     # It will be called with first the desired name of the new class,
     # second the base class it will inherit, and in addition any subsequent
@@ -27,33 +28,23 @@ def initialize_toolbox(storage: StorageInput, *, indpb: float=0.05, tournsize: i
 
     # parameters
     toolbox.register("evaluate", operators.eval_individual, storage=storage)
-    toolbox.register("mate", operators.cx_individual, alpha=0.1, indpb=0.25)
-    toolbox.register("mutate", operators.mut_individual, indpb=indpb)
+    toolbox.register("mate", operators.cx_individual, alpha=alpha, indpb=indpb_mate)
+    toolbox.register("mutate", operators.mut_individual, indpb=indpb_mutate, eta=eta, storage=storage)
     toolbox.register("select", tools.selTournament, tournsize=tournsize)
 
     return toolbox
 
 
-def calculate(storage_input: StorageInput, *, cxpb: float = 0.2, mutpb: float = 0.02, ngen: int = 100):
+def calculate(storage_input: StorageInput, *, cxpb: float = 0.2, mutpb: float = 0.02, ngen: int = 100,
+              eta: float = 0.2):
 
-    toolbox = initialize_toolbox(storage_input)
+    toolbox = initialize_toolbox(storage_input, eta=eta)
 
     # population
     pop = toolbox.population(n=50)
 
-    log = algorithms.eaSimple(pop, toolbox, cxpb, mutpb, ngen)
+    results, log = algorithms.eaSimple(pop, toolbox, cxpb, mutpb, ngen)
 
-    #
-    #     length = len(pop)
-    #     mean = sum(fits) / length
-    #     sum2 = sum(x * x for x in fits)
-    #     std = abs(sum2 / length - mean ** 2) ** 0.5
-    #
-    #     print("  Min %s" % min(fits))
-    #     print("  Max %s" % max(fits))
-    #     print("  Avg %s" % mean)
-    #     print("  Std %s" % std)
+    individual = max(results, key=lambda ind: sum(ind.fitness.wvalues))
 
-
-    return (u'Wenn ist das Nunst\u00fcck git und Slotermeyer? Ja! ... '
-            u'Beiherhund das Oder die Flipperwaldt gersput.')
+    return individual, log
