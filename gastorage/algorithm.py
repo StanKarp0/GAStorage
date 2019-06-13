@@ -1,4 +1,5 @@
 from deap import creator, base, tools, algorithms
+import numpy as np
 
 from . import operators
 from .utils import StorageInput
@@ -36,14 +37,19 @@ def initialize_toolbox(storage: StorageInput, *, indpb_mutate: float = 0.05, tou
 
 
 def calculate(storage_input: StorageInput, *, cxpb: float = 0.2, mutpb: float = 0.02, ngen: int = 100,
-              eta: float = 0.2):
+              eta: float = 0.2, pop: int = 100):
 
     toolbox = initialize_toolbox(storage_input, eta=eta)
 
     # population
-    pop = toolbox.population(n=50)
+    pop = toolbox.population(n=pop)
 
-    results, log = algorithms.eaSimple(pop, toolbox, cxpb, mutpb, ngen)
+    statistic = tools.Statistics()
+    statistic.register("mean", np.mean)
+    statistic.register("max", np.max)
+    statistic.register("min", np.min)
+
+    results, log = algorithms.eaSimple(pop, toolbox, cxpb, mutpb, ngen, statistic)
 
     individual = max(results, key=lambda ind: sum(ind.fitness.wvalues))
 

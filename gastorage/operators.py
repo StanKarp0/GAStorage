@@ -31,12 +31,19 @@ def no_overlaps_ratio(df: pd.DataFrame) -> float:
     df = df.reset_index()
     pairs = pd.merge(df, df, on='join', suffixes=('_1', '_2'))
     pairs = pairs[pairs.index_1 != pairs.index_2]
-    # series = pd.Series((pairs.yA_2 >= pairs.yB_1) |
-    #                  (pairs.yA_1 >= pairs.yB_2) |
-    #                  (pairs.xA_2 >= pairs.xB_1) |
-    #                  (pairs.xA_1 >= pairs.xB_2))
-    series = pd.Series((pairs.yA_2 >= pairs.yB_1) | (pairs.xA_2 >= pairs.xB_1))
+    series = pd.Series((pairs.yA_2 >= pairs.yB_1) |
+                     (pairs.yA_1 >= pairs.yB_2) |
+                     (pairs.xA_2 >= pairs.xB_1) |
+                     (pairs.xA_1 >= pairs.xB_2))
+    # series = pd.Series((pairs.yA_2 >= pairs.yB_1) | (pairs.xA_2 >= pairs.xB_1))
     return series.mean()
+
+
+def individual_to_df(inv_arr: np.ndarray, boxes: np.ndarray) -> pd.DataFrame:
+    storage_range = np.arange(boxes.shape[0])
+    rotated = np.array((boxes[storage_range, inv_arr[:, 0]], boxes[storage_range, ~inv_arr[:, 0]])).T
+    stacked = np.column_stack((inv_arr[:, 2:], inv_arr[:, 2:] + rotated))
+    return pd.DataFrame(stacked, columns=['xA', 'yA', 'xB', 'yB'])
 
 
 def eval_individual(individual, storage: StorageInput):
@@ -52,19 +59,22 @@ def eval_individual(individual, storage: StorageInput):
     # filer existing boxes
     boxes = storage.boxes[exist]
     inv_arr = inv_arr[exist]
-
-    # rotate boxes
-    storage_range = np.arange(boxes.shape[0])
-    rotated = np.array((boxes[storage_range, inv_arr[:, 0]], boxes[storage_range, ~inv_arr[:, 0]])).T
-    stacked = np.column_stack((inv_arr[:, 2:], inv_arr[:, 2:] + rotated))
-    df = pd.DataFrame(stacked, columns=['xA', 'yA', 'xB', 'yB'])
+    df = individual_to_df(inv_arr, boxes)
 
     # no overlaps
     no_overlaps = no_overlaps_ratio(df)
+    # if no_overlaps < 1:
+    #     print('no :', no_overlaps, 0, 0)
+    #     return 0, 0
 
     # results
-    surface = (rotated[:, 0] * rotated[:, 1]).sum() * no_overlaps
-    count = df.shape[0]
+    surface = ((boxes[:, 0] * boxes[:, 1]).sum()) / (storage.width * storage.height)
+    count = df.shape[0] / storage.count
+
+    surface *= no_overlaps
+    count *= no_overlaps
+
+    print('yes:', no_overlaps, surface, count, '\t\t', surface + count)
 
     # database like join
     return surface, count
@@ -108,8 +118,8 @@ def mut_individual(individual, indpb: float, eta: float, storage: StorageInput):
     tools.mutFlipBit(rotate, indpb)
     tools.mutFlipBit(exist, indpb)
 
-    tools.mutPolynomialBounded(x, eta, 0, storage.width, indpb)
-    tools.mutPolynomialBounded(y, eta, 0, storage.height, indpb)
+    tools.mutUniformInt(x, 0, storage.width, indpb)
+    tools.mutUniformInt(y, 0, storage.height, indpb)
 
     # print(any([np.isnan(a) for a in x]), any([np.isnan(a) for a in y]), storage.storage_shape)
     # print(x)

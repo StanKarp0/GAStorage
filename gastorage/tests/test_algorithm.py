@@ -9,7 +9,7 @@ class AlgorithmStorage(TestCase):
 
     def test_random(self):
         for storage in itertools.islice(StorageInput.storage_generator(), 1):
-            result, evolution = algorithm.calculate(storage, eta=1.)
+            result, evolution = algorithm.calculate(storage, eta=1., ngen=50, pop=500, mutpb=0.2)
             visualize.plot_boxes(result, storage)
 
     def test_vis(self):
