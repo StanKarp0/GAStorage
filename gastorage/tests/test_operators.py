@@ -54,3 +54,4 @@ class AlgorithmStorage(TestCase):
 
         for ind in pop:
             self._toolbox.mutate(ind)
+            

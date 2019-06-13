@@ -7,6 +7,8 @@ from pathlib import Path
 
 
 Box = namedtuple('Box', ('rotated', 'exist', 'x', 'y'))
+Rect = namedtuple('Rect', ('rotated', 'exist', 'position'))
+Rectangle = namedtuple('Rectangle', ('x', 'y', 'w', 'h'))
 
 
 class StorageInput:

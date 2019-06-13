@@ -1,7 +1,10 @@
+import random
+from functools import partial
+
 from deap import creator, base, tools, algorithms
 import numpy as np
 
-from . import operators
+from . import operators, operators_tetris
 from .utils import StorageInput
 
 
@@ -27,10 +30,34 @@ def initialize_toolbox(storage: StorageInput, *, indpb_mutate: float = 0.05, tou
     toolbox.register("individual", tools.initRepeat, creator.Individual, toolbox.attr_box, n=storage.count)
     toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 
-    # parameters
+    # operators
     toolbox.register("evaluate", operators.eval_individual, storage=storage)
     toolbox.register("mate", operators.cx_individual, alpha=alpha, indpb=indpb_mate)
     toolbox.register("mutate", operators.mut_individual, indpb=indpb_mutate, eta=eta, storage=storage)
+    toolbox.register("select", tools.selTournament, tournsize=tournsize)
+
+    return toolbox
+
+
+
+
+
+
+def initialize_toolbox_tetris(storage: StorageInput, *, tournsize=3):
+    # creator
+    creator.create("FitnessMax", base.Fitness, weights=(1.0, 1.0,))
+    creator.create("Individual", list, fitness=creator.FitnessMax)
+
+    # toolbox
+    toolbox = base.Toolbox()
+    toolbox.register("attr_rect", operators_tetris.init_box)
+    toolbox.register("individual", tools.initIterate, list, partial(operators_tetris.generate_individual, storage))
+    toolbox.register("population", tools.initRepeat, list, toolbox.individual)
+
+    # operators
+    toolbox.register("evaluate", operators_tetris.eval_individual, storage=storage)
+    toolbox.register("mate", operators_tetris.cx_individual)
+    toolbox.register("mutate", operators.mut_individual)
     toolbox.register("select", tools.selTournament, tournsize=tournsize)
 
     return toolbox
