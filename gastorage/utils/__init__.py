@@ -7,7 +7,7 @@ from pathlib import Path
 
 
 Box = namedtuple('Box', ('rotated', 'exist', 'x', 'y'))
-Package = namedtuple('Rect', ('rotated', 'position', 'index'))
+Package = namedtuple('Package', ('rotated', 'position', 'index'))
 Rectangle = namedtuple('Rectangle', ('x', 'y', 'w', 'h'))
 
 
@@ -22,6 +22,7 @@ class StorageInput:
     def __init__(self, storage_shape: Tuple[int, int], boxes: np.ndarray):
         self._storage_shape = storage_shape
         self._boxes = boxes
+        self._packages_surface = (boxes[:, 0] * boxes[:, 1]).sum()
 
     @property
     def storage_shape(self) -> Tuple[int, int]:
@@ -42,6 +43,10 @@ class StorageInput:
     @property
     def count(self) -> int:
         return self._boxes.shape[0]
+
+    @property
+    def packages_surface(self) -> int:
+        return self._packages_surface
 
     def __str__(self):
         return f"Shape: {self._storage_shape}\nBoxes:\n{self._boxes}"

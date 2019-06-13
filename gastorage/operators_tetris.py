@@ -3,8 +3,9 @@ import random
 from typing import Tuple, List
 
 import numpy as np
+from deap import tools
 
-from .utils import StorageInput, Package, Rectangle
+from .utils import StorageInput, Package, Rectangle, visualize
 
 
 def init_box(position: int, index: int):
@@ -15,7 +16,7 @@ def init_box(position: int, index: int):
 
 def generate_individual(storage: StorageInput):
     args = zip(range(storage.count), random.sample(range(storage.count), storage.count))
-    return [init_box(position, index) for position, index in args]
+    return [init_box(position, index) for index, position in args]
 
 
 def no_overlaps_ratio(rectangles: np.ndarray) -> float:
@@ -88,9 +89,38 @@ def calculate_positions(individual, storage: StorageInput) -> Tuple[List[Package
 
 
 def eval_individual(individual, storage: StorageInput):
+    if len(individual) < 1:
+        return 0, 0
+
     added_recs, not_added_recs, rectangles = calculate_positions(individual, storage)
-    return None
+
+    if len(added_recs) < 1:
+        return 0, 0
+
+    recs_arr = storage.boxes[np.array(added_recs)[:, 2], :]
+    surface = (recs_arr[:, 0] * recs_arr[:, 1]).sum()
+    count = len(added_recs)
+    return surface, count
 
 
-def cx_individual():
-    return None
+def cx_individual(individual1, individual2):
+    if len(individual1) < 2:
+        return individual1, individual2
+
+    ind_arr1 = np.array(individual1)
+    ind_arr2 = np.array(individual2)
+
+    try:
+        rotated1, rotated2 = tools.cxTwoPoint(ind_arr1[:, 0].copy(), ind_arr2[:, 0].copy())
+        order1, order2 = tools.cxPartialyMatched(ind_arr1[:, 1].copy(), ind_arr2[:, 1].copy())
+
+        for index, position, rotated in zip(ind_arr1[:, 2], order1, rotated1):
+            individual1[index] = Package(rotated, position, index)
+
+        for index, position, rotated in zip(ind_arr2[:, 2], order2, rotated2):
+            individual2[index] = Package(rotated, position, index)
+
+    except Exception as e:
+        raise e
+
+    return individual1, individual2
