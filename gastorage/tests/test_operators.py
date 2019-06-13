@@ -1,57 +1,62 @@
-import pandas as pd
+import itertools
 from unittest import TestCase
+import numpy as np
 
-from gastorage import algorithm, operators
-from gastorage.utils import StorageInput
+from gastorage import operators
+from gastorage.utils import StorageInput, visualize
 
 
 class AlgorithmStorage(TestCase):
 
-    @classmethod
-    def setUpClass(cls) -> None:
-        generator = StorageInput.storage_generator()
-        cls._storage = next(generator)
-        cls._toolbox = algorithm.initialize_toolbox(cls._storage)
+    @staticmethod
+    def generate_population(individuals: int, storage: StorageInput):
+        return (operators.generate_individual(storage) for _ in range(individuals))
+
+    def test_tetris(self):
+        storage_cnt = 500
+        individuals = 10
+
+        for storage in itertools.islice(StorageInput.storage_generator(), storage_cnt):
+            for individual in AlgorithmStorage.generate_population(individuals, storage):
+                added, left, rectangles = operators.calculate_positions(individual, storage)
+                no_overlaps = operators.no_overlaps_ratio(np.array(rectangles))
+                self.assertAlmostEqual(no_overlaps, 1.)
 
     def test_eval(self):
-        pop = self._toolbox.population(n=10)
-        values = [self._toolbox.evaluate(individual) for individual in pop]
-        for value in values:
-            self.assertIsInstance(value, tuple)
+        storage_cnt = 500
+        individuals = 10
 
-    def test_overlaps(self):
-        tests = [
-            ([{'xA': 10, 'yA': 10, 'xB': 20, 'yB': 20},
-              {'xA': 15, 'yA': 15, 'xB': 25, 'yB': 25}], False),
-
-            ([{'xA': 15, 'yA': 10, 'xB': 20, 'yB': 20},
-              {'xA': 10, 'yA': 15, 'xB': 25, 'yB': 25}], False),
-
-            ([{'xA': 10, 'yA': 10, 'xB': 25, 'yB': 20},
-              {'xA': 15, 'yA': 15, 'xB': 20, 'yB': 25}], False),
-
-            ([{'xA': 10, 'yA': 15, 'xB': 20, 'yB': 20},
-              {'xA': 15, 'yA': 10, 'xB': 25, 'yB': 25}], False),
-
-            ([{'xA': 10, 'yA': 10, 'xB': 20, 'yB': 20},
-              {'xA': 15, 'yA': 15, 'xB': 30, 'yB': 30}], False),
-        ]
-
-        for dicts, result in tests:
-            df = pd.DataFrame(dicts)
-            ratio = operators.no_overlaps_ratio(df)
-            self.assertEqual(ratio >= 1, result)
+        for storage in itertools.islice(StorageInput.storage_generator(), storage_cnt):
+            for individual in AlgorithmStorage.generate_population(individuals, storage):
+                fitness = operators.eval_individual(individual, storage)
+                self.assertIsInstance(fitness, tuple)
+                self.assertEqual(len(fitness), 2)
+                self.assertGreaterEqual(fitness[0], 0)
+                self.assertGreaterEqual(fitness[1], 0)
 
     def test_cx(self):
-        pop = self._toolbox.population(n=1000)
-        pairs = zip(pop, pop[1:])
+        storage_cnt = 500
+        individuals = 10
+        generator = itertools.combinations(range(individuals), 2)
 
-        for ind1, ind2 in pairs:
-            self._toolbox.mate(ind1, ind2)
+        for storage in itertools.islice(StorageInput.storage_generator(), storage_cnt):
+            population = list(AlgorithmStorage.generate_population(individuals, storage))
+            generator, local_gen = itertools.tee(generator, 2)
+
+            for a, b in local_gen:
+                old_a_arr, old_b_arr = np.array(population[a]), np.array(population[b])
+                operators.cx_individual(population[a], population[b])
+                new_a_arr, new_b_arr = np.array(population[a]), np.array(population[b])
+
+                if len(population[a]) > 0:
+                    self.assertEqual(np.unique(new_a_arr[:, 1]).shape[0], np.unique(old_a_arr[:, 1]).shape[0])
+                    self.assertEqual(np.unique(new_b_arr[:, 1]).shape[0], np.unique(old_b_arr[:, 1]).shape[0])
 
     def test_mut(self):
-        pop = self._toolbox.population(n=1000)
+        storage_cnt = 500
+        individuals = 10
+        indpb = 0.01
 
-        for ind in pop:
-            self._toolbox.mutate(ind)
-            
+        for storage in itertools.islice(StorageInput.storage_generator(), storage_cnt):
+            for individual in AlgorithmStorage.generate_population(individuals, storage):
+                mutated = operators.mut_individual(individual, indpb)

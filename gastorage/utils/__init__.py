@@ -6,7 +6,6 @@ import numpy as np
 from pathlib import Path
 
 
-Box = namedtuple('Box', ('rotated', 'exist', 'x', 'y'))
 Package = namedtuple('Package', ('rotated', 'position', 'index'))
 Rectangle = namedtuple('Rectangle', ('x', 'y', 'w', 'h'))
 
