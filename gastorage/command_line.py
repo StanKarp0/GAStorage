@@ -15,5 +15,6 @@ def main():
 
     path = Path(args.path)
     with OpenStorage(path) as storage:
-        result = algorithm.calculate(storage)
-        print(result)
+        individual, log = algorithm.calculate(storage)
+        output = algorithm.to_output_format(individual, storage)
+        print(output)
