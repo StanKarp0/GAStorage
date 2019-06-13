@@ -7,7 +7,7 @@ from pathlib import Path
 
 
 Box = namedtuple('Box', ('rotated', 'exist', 'x', 'y'))
-Rect = namedtuple('Rect', ('rotated', 'exist', 'position'))
+Package = namedtuple('Rect', ('rotated', 'position', 'index'))
 Rectangle = namedtuple('Rectangle', ('x', 'y', 'w', 'h'))
 
 
