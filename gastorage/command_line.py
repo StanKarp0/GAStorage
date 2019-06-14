@@ -15,6 +15,10 @@ def main():
 
     path = Path(args.path)
     with OpenStorage(path) as storage:
-        individual, log = algorithm.calculate(storage)
+        algorithm.initialize_creator()
+        individual, log = algorithm.calculate(storage, verbose=False)
         output = algorithm.to_output_format(individual, storage)
-        print(output)
+
+    output_path = Path('output.txt')
+    with output_path.open("w") as file:
+        file.write(output)

@@ -1,11 +1,15 @@
 import itertools
 import random
 from typing import Tuple, List
+import matplotlib.pyplot as plt
 
 import numpy as np
 from deap import tools
 
 from .utils import StorageInput, Package, Rectangle, visualize
+
+__all__ = ('generate_individual', 'no_overlaps_ratio', 'calculate_positions', 'eval_individual', 'cx_individual',
+           'mut_individual',)
 
 
 def init_box(position: int, index: int):

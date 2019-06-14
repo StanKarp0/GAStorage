@@ -1,5 +1,6 @@
 venv
 .idea
+output.txt
 
 # Compiled python modules.
 *.pyc
