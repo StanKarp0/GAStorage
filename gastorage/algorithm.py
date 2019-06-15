@@ -34,7 +34,7 @@ def initialize_toolbox(storage: StorageInput, *, tournsize, mutpb):
     return toolbox
 
 
-def calculate(storage: StorageInput, *, ngen: int = 100, pop: int = 100, cxpb: float = 0.2, mutpb: float = 0.01,
+def calculate(storage: StorageInput, *, ngen: int = 5000, pop: int = 20, cxpb: float = 0.5, mutpb: float = 0.2,
               tournsize: int = 3, best: int = 3, verbose: bool = True):
 
     toolbox = initialize_toolbox(storage, tournsize=tournsize, mutpb=mutpb)

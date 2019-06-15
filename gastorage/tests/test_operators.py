@@ -13,7 +13,7 @@ class AlgorithmStorage(TestCase):
         return (operators.generate_individual(storage) for _ in range(individuals))
 
     def test_tetris(self):
-        storage_cnt = 500
+        storage_cnt = 5000
         individuals = 10
 
         for storage in itertools.islice(StorageInput.storage_generator(), storage_cnt):
@@ -23,7 +23,7 @@ class AlgorithmStorage(TestCase):
                 self.assertAlmostEqual(no_overlaps, 1.)
 
     def test_eval(self):
-        storage_cnt = 500
+        storage_cnt = 5000
         individuals = 10
 
         for storage in itertools.islice(StorageInput.storage_generator(), storage_cnt):
@@ -35,7 +35,7 @@ class AlgorithmStorage(TestCase):
                 self.assertGreaterEqual(fitness[1], 0)
 
     def test_cx(self):
-        storage_cnt = 500
+        storage_cnt = 5000
         individuals = 10
         generator = itertools.combinations(range(individuals), 2)
 
@@ -53,7 +53,7 @@ class AlgorithmStorage(TestCase):
                     self.assertEqual(np.unique(new_b_arr[:, 1]).shape[0], np.unique(old_b_arr[:, 1]).shape[0])
 
     def test_mut(self):
-        storage_cnt = 500
+        storage_cnt = 5000
         individuals = 10
         indpb = 0.01
 

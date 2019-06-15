@@ -36,6 +36,8 @@ def plot_rectangles(rectangles: List[Rectangle], storage: StorageInput, colors=g
 
     plt.tight_layout()
 
+    return fig
+
 
 def plot_evolution(evolution: Logbook):
     args = ['gen', 'max', 'mean', 'surface', 'count']
@@ -54,18 +56,23 @@ def plot_evolution(evolution: Logbook):
     ax1.set_title('Zbieżność algorytmu')
     ax1.set_xlabel('Iteracja')
     ax1.set_ylabel('Przystosowanie')
+    ax1.grid()
     ax1.legend()
 
     # surface
-    ax2.plot(ev_it, ev_surface)
+    ax2.plot(ev_it, np.array(ev_surface))
     ax2.set_title('Suma powierchni najlepszego osobnika')
     ax2.set_xlabel('Iteracja')
-    ax2.set_ylabel('Przystosowanie')
+    ax2.set_ylabel('Powierzchnia')
+    ax2.grid()
 
     # count
     ax3.plot(ev_it, ev_count)
     ax3.set_title('Liczba skrzyń najlepszego osobnika')
     ax3.set_xlabel('Iteracja')
-    ax1.set_ylabel('Liczba skrzyń')
+    ax3.set_ylabel('Liczba skrzyń')
+    ax3.grid()
 
     plt.tight_layout()
+
+    return fig

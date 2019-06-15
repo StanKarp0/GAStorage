@@ -72,6 +72,11 @@ class StorageInput:
             n = np.random.randint(StorageInput.MAX_N)
             yield StorageInput.from_random(shape, n)
 
+    def as_input(self):
+        acc = f'{self.width} {self.height}\n{self.count}\n'
+        boxes = '\n'.join([f'{pair[0]} {pair[1]}' for pair in self.boxes])
+        return acc + boxes
+
 
 class OpenStorage:
 
