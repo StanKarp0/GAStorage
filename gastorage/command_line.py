@@ -16,7 +16,7 @@ def main():
     path = Path(args.path)
     with OpenStorage(path) as storage:
         algorithm.initialize_creator()
-        individual, log = algorithm.calculate(storage, verbose=False)
+        individual, log = algorithm.calculate(storage)
         output = algorithm.to_output_format(individual, storage)
 
     output_path = Path('output.txt')
